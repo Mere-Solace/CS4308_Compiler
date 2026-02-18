@@ -1,0 +1,13 @@
+* Textbook page 300 *
+
+
+First way:
+Each Token needs a regex
+make a dict of a {regex:token_type}
+
+
+Second way:
+List of key-words, each identifier gets matched against that list of keywords
+
+Each token gets hardcoded
+
