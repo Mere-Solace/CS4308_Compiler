@@ -28,7 +28,6 @@ private:
     std::vector<Token> tokens;
     std::string lexeme = "";
     char c = ' ';
-    char* c_ptr = &c;
     int start = 0;
     int current = 0;
     int line = 1;

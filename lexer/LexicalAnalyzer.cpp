@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <Lexer.h>
+#include "Lexer.h"
 
 int main() {
     std::cout << "Enter name of file to lex: " << std::endl;
@@ -31,5 +31,8 @@ int main() {
     std::string source = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
     Lexer lexer(source, lang);
-    lexer.scanTokens();
+    std::vector<Token> tokenized = lexer.scanTokens();
+    for (const auto& token : tokenized) {
+        std::cout << "Token [Line " << token.line << "]\n  Lexeme: " << token.lexeme << ", Type: " << enumToString(token.type) << std::endl;
+    }
 }

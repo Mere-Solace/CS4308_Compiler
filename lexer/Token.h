@@ -30,15 +30,23 @@ enum class TokenType {
     RIGHT_BRACE,
     LEFT_BRACKET,
     RIGHT_BRACKET,
+    LEFT_SQUARE_BRACKET,
+    RIGHT_SQUARE_BRACKET,
     SEMICOLON,
+    COLON,
     COMMA,
     IDENTIFIER,
     INTEGER_LITERAL,
     FLOAT_LITERAL,
     STRING_LITERAL,
     KEYWORD,
+    DOT,
     END_OF_FILE
 };
+
+std::string enumToString(TokenType type);
+
+
 
 struct Token {
     TokenType type;

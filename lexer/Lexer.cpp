@@ -16,6 +16,12 @@ std::vector<Token> Lexer::scanTokens() {
     return tokens;
 }
 
+char Lexer::peek() {
+    // not using current + 1 since we do current++ in advance()
+    if (current >= source.length()) return '\0';
+    return source.at(current);
+}
+
 void Lexer::advance() {
     Lexer::c = source.at(current++);
 }
@@ -23,8 +29,8 @@ void Lexer::advance() {
 void Lexer::scanToken() {
     advance();
 
-    std::cout << c; 
-
+    // std::cout << c; // Debug print 
+    
     // Not handling overloaded assignment ops (+=, -=, etc.)
     // Also not handling ++ or --
     switch (c) {
@@ -49,14 +55,16 @@ void Lexer::scanToken() {
             else {
                 addToken(TokenType::ASSIGN);
             }
-            addToken(TokenType::ASSIGN); 
             break;
 
         case '(': addToken(TokenType::LEFT_PAREN); break;
         case ')': addToken(TokenType::RIGHT_PAREN); break;
         case '{': addToken(TokenType::LEFT_BRACE); break;
         case '}': addToken(TokenType::RIGHT_BRACE); break;
+        case '[': addToken(TokenType::LEFT_SQUARE_BRACKET); break;
+        case ']': addToken(TokenType::RIGHT_SQUARE_BRACKET); break;
         case ';': addToken(TokenType::SEMICOLON); break;
+        case ':': addToken(TokenType::COLON); break;
         
         case '/': 
             if (language == Java && match()) { // if there's a second / or *, it's a comment
@@ -78,6 +86,7 @@ void Lexer::scanToken() {
             break;
 
         case '"':
+        case '\'':
             string();
             break;
 
@@ -97,8 +106,17 @@ void Lexer::scanToken() {
                 identifier();
             }
             else {
-                std::cout << "unexpected: " << c;
-                // unexpected stuff ?
+                // handle member access, method calls, and array access here
+                switch(c) {
+                    case '.': addToken(TokenType::DOT); break;
+                    case ',': addToken(TokenType::COMMA); break;
+                    case '[': addToken(TokenType::LEFT_SQUARE_BRACKET); break;
+                    case ']': addToken(TokenType::RIGHT_SQUARE_BRACKET); break;
+                    case '(': addToken(TokenType::LEFT_PAREN); break;
+                    case ')': addToken(TokenType::RIGHT_PAREN); break;
+                    default:
+                        std::cout << "unexpected: " << c;
+                }
                 break;
             }
         
@@ -127,11 +145,14 @@ bool Lexer::match() {
 }
 
 void Lexer::string() {
+    start = c;
+    lexeme += start;
     advance();
-    while (c != '"') {
+    while (c != start) {
         lexeme += c;
         advance();
     }
+    lexeme += start;
     addToken(TokenType::STRING_LITERAL);
 }
 
@@ -159,6 +180,18 @@ void Lexer::number() {
     while (isDigit(peek())) {
         lexeme += peek();
         advance();
+    }
+    if (peek() == '.' && isDigit(source.at(current + 1))) {
+        lexeme += peek(); // add the dot
+        advance();
+        while (isDigit(peek())) {
+            lexeme += peek();
+            advance();
+        }
+        addToken(TokenType::FLOAT_LITERAL);
+    }
+    else {
+        addToken(TokenType::INTEGER_LITERAL);
     }
 }
 
