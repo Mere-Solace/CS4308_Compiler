@@ -16,7 +16,7 @@ enum class TokenType {
     DIVIDE,
     ASSIGN,
     EQUALS,
-    NOT_EQUALS,
+    NOT_EQUAL,
     LESS_THAN,
     GREATER_THAN,
     LESS_THAN_OR_EQUAL,
@@ -24,6 +24,8 @@ enum class TokenType {
     AND,
     OR,
     NOT,
+    LEFT_SHIFT,
+    RIGHT_SHIFT,
     LEFT_PAREN,
     RIGHT_PAREN,
     LEFT_BRACE,
@@ -41,7 +43,9 @@ enum class TokenType {
     STRING_LITERAL,
     KEYWORD,
     DOT,
-    END_OF_FILE
+    END_OF_FILE,
+    COMMENT,
+    BLOCK_COMMENT
 };
 
 std::string enumToString(TokenType type);

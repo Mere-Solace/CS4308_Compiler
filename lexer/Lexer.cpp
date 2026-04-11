@@ -1,5 +1,19 @@
+#include <map>
+#include <algorithm>
+
 #include "Lexer.h"
 
+// map of each initial char with possible next char
+std::map<char, std::map<char, TokenType>> Lexer::match_pairs = {
+    {'=', std::map<char, TokenType>{{'=', TokenType::EQUALS}}},
+    {'!', std::map<char, TokenType>{{'!', TokenType::NOT_EQUAL}}},
+    {'<', std::map<char, TokenType>{{'=', TokenType::LESS_THAN_OR_EQUAL}, {'<', TokenType::LEFT_SHIFT}}},
+    {'>', std::map<char, TokenType>{{'>', TokenType::RIGHT_SHIFT}, {'=', TokenType::GREATER_THAN_OR_EQUAL}}},
+    {'&', std::map<char, TokenType>{{'&', TokenType::AND}}},
+    {'|', std::map<char, TokenType>{{'|', TokenType::OR}}},
+    {'/', std::map<char, TokenType>{{'/', TokenType::COMMENT}, {'*', TokenType::BLOCK_COMMENT}}},
+    {'*', std::map<char, TokenType>{{'*', TokenType::EXP}, {'/', TokenType::BLOCK_COMMENT}}}
+};
 
 bool isDigit(char c) {
     return c >= '0' && c <= '9';
@@ -26,20 +40,31 @@ void Lexer::advance() {
     Lexer::c = source.at(current++);
 }
 
+bool in_map(char c) {
+    return Lexer::match_pairs.find(c) != Lexer::match_pairs.end();
+}
+
 void Lexer::scanToken() {
     advance();
 
-    // std::cout << c; // Debug print 
-    
-    // Not handling overloaded assignment ops (+=, -=, etc.)
-    // Also not handling ++ or --
+    // Handle multi-char tokens that exist within the 
+    // match_pairs map.
+    if (in_map(c)) {
+        if (match()) {
+            return;
+        }
+    }
+    // not handling everything perfectly here...
+    // just working towards the parser implementation
     switch (c) {
         case '+': addToken(TokenType::PLUS); break;
         case '-': addToken(TokenType::MINUS); break;
+        case '<': 
+            addToken(TokenType::LESS_THAN);
+            break;
         case '*':
             if (language == Python && match()) { // if there's a second *, it's an exponentiation operator
-                addToken(TokenType::EXP);
-                advance();
+                addMatch(TokenType::EXP);
             }
             else {
                 addToken(TokenType::MULTIPLY);
@@ -47,10 +72,10 @@ void Lexer::scanToken() {
             addToken(TokenType::MULTIPLY); 
             break;
         
+        // we should actually be adding the second 'matched' char to the lexeme.
         case '=': 
             if (match()) { // if there's a second =, it's an equality check
-                addToken(TokenType::EQUALS);
-                advance(); // consume the second =
+                addMatch(TokenType::EQUALS);
             }
             else {
                 addToken(TokenType::ASSIGN);
@@ -125,23 +150,21 @@ void Lexer::scanToken() {
     lexeme = ""; // reset (flush) word
 }
 
+void Lexer::addMatch(TokenType type) {
+    lexeme += c; // add the first char to the lexeme
+    advance();
+    lexeme += c;
+    addToken(type);
+}
+
 bool Lexer::match() {
-    switch (c) {
-        case '=':
-        case '!':
-        case '<':
-        case '>':
-            return peek() == '=';
-        case '&':
-            return peek() == '&';
-        case '|':
-            return peek() == '|';
-        case '/':
-        case '*':
-            return peek() == '/' || peek() == '*';
-        default:
-            return false;
+    for (const auto& pair : match_pairs[c]) {
+        if (peek() == pair.first) {
+            addMatch(pair.second);
+            return true;
+        }
     }
+    return false;
 }
 
 void Lexer::string() {

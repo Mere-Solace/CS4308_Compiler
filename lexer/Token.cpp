@@ -9,7 +9,7 @@ std::string enumToString(TokenType type) {
         case TokenType::DIVIDE: return "DIVIDE";
         case TokenType::ASSIGN: return "ASSIGN";
         case TokenType::EQUALS: return "EQUALS";
-        case TokenType::NOT_EQUALS: return "NOT_EQUALS";
+        case TokenType::NOT_EQUAL: return "NOT_EQUAL";
         case TokenType::LESS_THAN: return "LESS_THAN";  
         case TokenType::GREATER_THAN: return "GREATER_THAN";
         case TokenType::LESS_THAN_OR_EQUAL: return "LESS_THAN_OR_EQUAL";
