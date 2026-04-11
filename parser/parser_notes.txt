@@ -1,0 +1,45 @@
+void if_stmt()
+
+void elif_stmt()
+
+void else_block()
+
+
+
+parser for the following grammar:
+
+if_stmt:
+    | 'if' named_expression ':' block elif_stmt 
+    | 'if' named_expression ':' block [else_block] 
+elif_stmt:
+    | 'elif' named_expression ':' block elif_stmt 
+    | 'elif' named_expression ':' block [else_block] 
+else_block:
+    | 'else' ':' block 
+
+
+test with:
+
+x = 10
+
+if x < 0:
+    print("x is negative")
+elif x == 0:
+    print("x is zero")
+else:
+    print("x is positive")
+
+
+create a parse tree
+
+
+
+token = lex()
+
+# see a named expression => go forward
+
+
+
+call elif subprogram (here is the recursive descent part)
+
+for each non-term, create a subprogram.
