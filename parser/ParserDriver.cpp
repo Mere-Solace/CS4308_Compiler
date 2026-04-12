@@ -1,19 +1,20 @@
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <vector>
 
-#include "Lexer.h"
+#include "../lexer/Lexer.h"
+#include "RDP.h" // Recursive Descent Parser
+
+// to compile:
+// g++ -std=c++17 parser/ParserDriver.cpp parser/RDP.cpp lexer/Lexer.cpp -o parser.exe
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
+    if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " <filename>" << std::endl;
         return 1;
     }
 
     std::string filename = argv[1];
 
-    // strip whitespace and check extension to determine language
     std::string extension = filename.substr(filename.find_last_of(".") + 1);
     Language lang;
     if (extension == "py") {
@@ -33,12 +34,17 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string source = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    std::string source = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()).append("\0"); // add null terminator to the end of the source string
 
-    // all the work is done with these two calls
     Lexer lexer(source, lang);
     std::vector<Token> tokenized = lexer.scanTokens();
-    //
 
     printLexTable(tokenized);
+
+    RDP parser(tokenized, lang);
+    parser.parse();
+
+    parser.printParseTree();
+
+    return 0;
 }

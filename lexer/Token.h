@@ -48,7 +48,8 @@ enum class TokenType {
     BLOCK_COMMENT
 };
 
-std::string enumToString(TokenType type);
+
+
 
 
 
@@ -56,6 +57,8 @@ struct Token {
     TokenType type;
     std::string lexeme;
     int line;
+public:
+    static std::string enumToString(TokenType type);
 };
 
 enum Language 

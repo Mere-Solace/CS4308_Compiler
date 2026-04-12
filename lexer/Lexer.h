@@ -35,3 +35,5 @@ private:
     int current = 0;
     int line = 1;
 };
+
+void printLexTable(std::vector<Token> tokenized);

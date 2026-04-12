@@ -2,17 +2,38 @@
 #include <algorithm>
 
 #include "Lexer.h"
+#include "Token.h"
 
 // map of each initial char with possible next char
 std::map<char, std::map<char, TokenType>> Lexer::match_pairs = {
-    {'=', std::map<char, TokenType>{{'=', TokenType::EQUALS}}},
-    {'!', std::map<char, TokenType>{{'!', TokenType::NOT_EQUAL}}},
-    {'<', std::map<char, TokenType>{{'=', TokenType::LESS_THAN_OR_EQUAL}, {'<', TokenType::LEFT_SHIFT}}},
-    {'>', std::map<char, TokenType>{{'>', TokenType::RIGHT_SHIFT}, {'=', TokenType::GREATER_THAN_OR_EQUAL}}},
-    {'&', std::map<char, TokenType>{{'&', TokenType::AND}}},
-    {'|', std::map<char, TokenType>{{'|', TokenType::OR}}},
-    {'/', std::map<char, TokenType>{{'/', TokenType::COMMENT}, {'*', TokenType::BLOCK_COMMENT}}},
-    {'*', std::map<char, TokenType>{{'*', TokenType::EXP}, {'/', TokenType::BLOCK_COMMENT}}}
+    {'=', std::map<char, TokenType>{
+        {'=', TokenType::EQUALS}
+    }},
+    {'!', std::map<char, TokenType>{
+        {'!', TokenType::NOT_EQUAL}
+    }},
+    {'<', std::map<char, TokenType>{
+        {'=', TokenType::LESS_THAN_OR_EQUAL}, 
+        {'<', TokenType::LEFT_SHIFT}
+    }},
+    {'>', std::map<char, TokenType>{
+        {'>', TokenType::RIGHT_SHIFT}, 
+        {'=', TokenType::GREATER_THAN_OR_EQUAL}
+    }},
+    {'&', std::map<char, TokenType>{
+        {'&', TokenType::AND}
+    }},
+    {'|', std::map<char, TokenType>{
+        {'|', TokenType::OR}
+    }},
+    {'/', std::map<char, TokenType>{
+        {'/', TokenType::COMMENT}, 
+        {'*', TokenType::BLOCK_COMMENT}
+    }},
+    {'*', std::map<char, TokenType>{
+        {'*', TokenType::EXP}, 
+        {'/', TokenType::BLOCK_COMMENT}
+    }}
 };
 
 bool isDigit(char c) {
@@ -27,6 +48,7 @@ std::vector<Token> Lexer::scanTokens() {
     while (current < source.length()) {
         scanToken();
     }
+    tokens.push_back(Token { TokenType::END_OF_FILE, "\0", line});
     return tokens;
 }
 
@@ -57,6 +79,8 @@ void Lexer::scanToken() {
     // not handling everything perfectly here...
     // just working towards the parser implementation
     switch (c) {
+        case '\0': addToken(TokenType::END_OF_FILE); break;
+        case ':': addToken(TokenType::COLON); break;
         case '+': addToken(TokenType::PLUS); break;
         case '-': addToken(TokenType::MINUS); break;
         case '<': 
@@ -89,7 +113,6 @@ void Lexer::scanToken() {
         case '[': addToken(TokenType::LEFT_SQUARE_BRACKET); break;
         case ']': addToken(TokenType::RIGHT_SQUARE_BRACKET); break;
         case ';': addToken(TokenType::SEMICOLON); break;
-        case ':': addToken(TokenType::COLON); break;
         
         case '/': 
             if (language == Java && match()) { // if there's a second / or *, it's a comment
@@ -225,4 +248,56 @@ void Lexer::addToken(TokenType type) {
     else {
         tokens.push_back(Token { type, lexeme, line});
     }
+}
+
+void printLexTable(std::vector<Token> tokenized) {
+    std::vector<int> lex_lens = std::vector<int>();
+    std::vector<int> type_lens = std::vector<int>();
+    
+    int max_length_lex = 6;
+    int max_length_type = 5;
+    for (int i = 0; i < tokenized.size(); i++) {
+        lex_lens.push_back((int)tokenized.at(i).lexeme.length());
+        max_length_lex = std::max(max_length_lex, lex_lens.at(i));
+        type_lens.push_back((int) Token::enumToString(tokenized.at(i).type).length());
+        max_length_type = std::max(max_length_type, type_lens.at(i));
+    }
+
+
+    std::string lex_bar = std::string(max_length_lex + 2, '=');
+    std::string type_bar = std::string(max_length_type + 2, '=');
+    std::cout << "+" << lex_bar << "+" << type_bar << "+" << std::endl;
+    std::cout << "| LEXEME";
+       
+    for (int j = 0; j < max_length_lex - 6; j++) {
+        std::cout << " ";
+    }       
+    std::cout << " | ";
+
+    std::cout << "TOKEN";
+    for (int j = 0; j < max_length_type - 5; j++) {
+        std::cout << " ";
+    }
+    std::cout << " | LINE" << std::endl;
+    std::cout << "+" << lex_bar << "+" << type_bar << "+" << std::endl;
+    int len = 0;
+    for (int i = 0; i < tokenized.size(); i++) {
+        std::cout << "| ";
+        len = lex_lens.at(i);
+        std::cout << tokenized.at(i).lexeme;
+        for (int j = 0; j < max_length_lex - len; j++) {
+            std::cout << " ";
+        }       
+        std::cout << " | ";
+
+        len = type_lens.at(i);
+        std::cout << Token::enumToString(tokenized.at(i).type);
+        for (int j = 0; j < max_length_type - len; j++) {
+            std::cout << " ";
+        }
+        std::cout << " | ";
+
+        std::cout << tokenized.at(i).line << std::endl;
+    }
+    std::cout << "+" << lex_bar << "+" << type_bar << "+" << std::endl;
 }

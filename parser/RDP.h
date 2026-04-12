@@ -4,8 +4,13 @@
 #include <vector>
 #include <malloc.h>
 
-#include "Token.h"
 #include "ParseTree.h"
+
+// Need a larger grammer to test the RDP...
+
+// start:
+//    | if_stmt
+//    | block if_stmt:
 
 // if_stmt:
 //     | 'if' named_expression ':' block elif_stmt 
@@ -16,43 +21,36 @@
 // else_block:
 //     | 'else' ':' block 
 
-// test with:
-// x = 10
-// if x < 0:
-//     print("x is negative")
-// elif x == 0:
-//     print("x is zero")
-// else:
-//     print("x is positive")
-
-// RDP algorithm:
-// S()
-// {     Choose any S production, S ->X1X2…..Xk;
-//       for (i = 1 to k)
-//       {
-//           If ( Xi is a non-terminal)
-//           Call procedure Xi();
-//           else if ( Xi equals the current input, increment input)
-//           Else /* error has occurred, backtrack and try another possibility */
-//       }
-// }
-
 // Recursive Descent Parser
 class RDP {
 public:
-    RDP(const std::string& source, Language lang = Java) :
-    source(source), language(lang) {};
+    RDP(std::vector<Token> tokenized, Language lang = Java) :
+    tokenized(tokenized), language(lang) {};
+
+    void parse();
+
+    void printParseTree() {
+        parseTree.printTree(parseTree.root);
+    }
+
+    const static std::vector<std::string> key_word_list;
 
 private:
-    std::string source;
+    std::vector<Token> tokenized;
     Language language;
+    int current = 0; // index of the current token being processed
+    ParseTreeNode* currentNode; // pointer to the current node in the parse tree
 
     ParseTree parseTree; // define a ParseTree class to represent the parse tree
 
+    bool consume(TokenType expected);
+    bool consume(std::string expected_lex, TokenType expected_type);
+
     // create subprograms for each non-terminal
+    void start();
     void if_stmt();
     void elif_stmt();
     void else_block();
-
-    int matchToken(TokenType expected);
+    void named_expression();
+    void block();
 };

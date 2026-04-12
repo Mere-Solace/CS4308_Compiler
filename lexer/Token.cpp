@@ -1,6 +1,6 @@
 #include "Token.h"
 
-std::string enumToString(TokenType type) {
+std::string Token::enumToString(TokenType type) {
     switch (type) {
         case TokenType::PLUS: return "PLUS";
         case TokenType::MINUS: return "MINUS";
